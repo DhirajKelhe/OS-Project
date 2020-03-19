@@ -1,6 +1,4 @@
-# OS-Scheduling-Algo
-The Scheduling problem is solved by Round Robin algorithm.
-
+# OS Project
 Problem Statement: 
 
     " Sudesh Sharma is a Linux expert who wants to have an online system where he can
@@ -9,3 +7,5 @@ Problem Statement:
     log into the system from 10am to 12am only. He wants to have separate requests queues for
     students and faculty. Implement a strategy for the same. The summary at the end of the
     session should include the total time he spent on handling queries and average query time. "
+
+The given problem is scheduling problem. The problem can be solved by Round Robin algorithm.
