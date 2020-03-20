@@ -19,14 +19,14 @@ struct Query {
     int TotalTime;
 }Faculty[120], Student[120], Mix[120];
 
-// Initializing starting queries
+// Initializing required variables
 int TimeQuantum=0, FacultyCount=0, StudentCount=0, MixCount=0, TotalQueries=0;
-int TQ=0, total=0, WaitTime=0, TATime=0, counter=0, i;
+int TQ=0, WaitTime=0, TATime=0, counter=0, i, total=0, CTarr[120], maximumCT=0;
 
 void InputsForProcess() {
     int QueryType, AT=1000, BT=0;
     ValidQuery:
-    printf("Enter total number of Queries: ");
+    printf("\nEnter total number of Queries: ");
     scanf("%d", &TotalQueries);
     // Check whether entered query number is <0 or >120
     if(TotalQueries<=0 || TotalQueries>120) {
@@ -56,7 +56,12 @@ void InputsForProcess() {
                     goto FTime;
                 }
                 else {
-                    Faculty[FacultyCount].ArrivalTime = AT-1000;
+                    if (AT>=1000 && AT<1100) {
+                        Faculty[FacultyCount].ArrivalTime = AT-1000;
+                    }
+                    else {
+                        Faculty[FacultyCount].ArrivalTime = AT-1040;
+                    }
                 }
                 FBTime:
                 printf("Enter Burst Time: ");
@@ -68,7 +73,7 @@ void InputsForProcess() {
                 else {
                     Faculty[FacultyCount].BurstTime = BT;
                 }
-                Faculty[FacultyCount].TotalTime += Faculty[FacultyCount].BurstTime;
+                Faculty[FacultyCount].TotalTime = Faculty[FacultyCount].BurstTime;
                 FacultyCount++;
             }
 
@@ -85,7 +90,12 @@ void InputsForProcess() {
                     goto STime;
                 }
                 else {
-                    Student[StudentCount].ArrivalTime = AT-1000;
+                    if (AT>=1000 && AT<1100) {
+                        Student[StudentCount].ArrivalTime = AT-1000;
+                    }
+                    else {
+                        Student[StudentCount].ArrivalTime = AT-1040;
+                    }
                 }
                 SBTime:
                 printf("Enter Burst Time: ");
@@ -97,7 +107,7 @@ void InputsForProcess() {
                 else {
                     Student[StudentCount].BurstTime = BT;
                 }
-                Student[StudentCount].TotalTime += Student[StudentCount].BurstTime;
+                Student[StudentCount].TotalTime = Student[StudentCount].BurstTime;
                 StudentCount++;
             }
             else {
@@ -164,29 +174,52 @@ void MergeQueries() {
 			iFC++;
 		}
 	}
-	else {
-		printf("\n No valid Jobs available\n");
-	}
+}
+
+void MinAT() {
+    total = Mix[0].ArrivalTime;
+    for(int i=1;i<MixCount;i++) {
+        if(total>Mix[i].ArrivalTime) {
+            total = Mix[i].ArrivalTime;
+        }
+    }
+}
+
+void MaxCT() {
+    maximumCT=CTarr[0];
+    for(i=1;i<MixCount;i++) {
+        if(maximumCT<CTarr[i]) {
+            maximumCT = CTarr[i];
+        }
+    }
 }
 
 void RoundRobin() {
     printf("\nQuery ID\tArrivalTime\tBurstTime\tWaitingTime\tTurnAroundTime\tCompletionTime\n");
-    // printf("%s",Mix[0].QueryID);
-    for(total = 0, i = 0; TQ != 0;) {
-        if(Mix[i].TotalTime <= TimeQuantum && Mix[i].TotalTime > 0) {
+    for(i = 0; TQ != 0;) {
+        if(Mix[i].TotalTime <= TimeQuantum && Mix[i].TotalTime > 0) {   // (First if) Process will complete without any preemption
             total = total + Mix[i].TotalTime;
             Mix[i].TotalTime = 0;
             counter = 1;
         }
-        else if(Mix[i].TotalTime > 0) {
+        else if(Mix[i].TotalTime > 0) { // Process will preempt according to TimeQuantum
             Mix[i].TotalTime -= TimeQuantum;
             total = total + TimeQuantum;
         }
-        if(Mix[i].TotalTime == 0 && counter == 1) {
+        if(Mix[i].TotalTime == 0 && counter == 1) {     // continue after first if
             TQ--;
+            int ATCalc = Mix[i].ArrivalTime+1000;
+            int CTCalc = total+1000;
+            CTarr[i] = CTCalc;
+            if(ATCalc>1059) {
+                ATCalc += 40;
+            }
+            if(CTCalc>1059) {
+                CTCalc += 40;
+            }
             printf("\n%s\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d", 
-                Mix[i].QueryID, Mix[i].ArrivalTime+1000, Mix[i].BurstTime, 
-                total-Mix[i].ArrivalTime-Mix[i].BurstTime, total-Mix[i].ArrivalTime, total+1000);
+                Mix[i].QueryID, ATCalc, Mix[i].BurstTime, 
+                total-Mix[i].ArrivalTime-Mix[i].BurstTime, total-Mix[i].ArrivalTime, CTCalc);
             WaitTime += total - Mix[i].ArrivalTime - Mix[i].BurstTime;
             TATime += total - Mix[i].ArrivalTime;
             counter = 0;
@@ -201,15 +234,29 @@ void RoundRobin() {
             i = 0;
         }
     }
-    float avgWaitTime = WaitTime * 1.0 / TotalQueries;
+
+    MaxCT(); MinAT();
+    printf("\n\nSummary of Execution: \n\n");
+    printf("Total Time Spent on handling Queries: %d minutes\n", maximumCT-total-1000);
+    // float avgWaitTime = WaitTime * 1.0 / TotalQueries;
     float avgTATime = TATime * 1.0 / TotalQueries;
-    printf("\n\nAverage Waiting Time : %f", avgWaitTime);
-    printf("\nAverage TurnAround Time : %f\n", avgTATime);
+    // printf("\n\nAverage Waiting Time : %.2f", avgWaitTime);
+    printf("Average TurnAround Time : %.2f minutes", avgTATime);
+    printf("\n\nProgram Execution Completed!\n\n");
+}
+
+void displayRawData() {
+    printf("\nQueryID\tAT\tBT\tTT\n\n");
+    for(int i=0; i<MixCount; i++) {
+        printf("%s\t%d\t%d\t%d\t%d\n",Mix[i].QueryID,Mix[i].ArrivalTime,Mix[i].BurstTime,Mix[i].TotalTime);
+    }
+    printf("\n%d",total);
 }
 
 void main() {
     printf("\nWelcome\n\n");
     InputsForProcess();
     MergeQueries();
+    // displayRawData();    // For testing purpose
     RoundRobin();
 }
