@@ -66,8 +66,13 @@ void InputsForProcess() {
                 FBTime:
                 printf("Enter Burst Time: ");
                 scanf("%d", &BT);
-                if(BT>=120 || BT<=0) {
-                    printf("\nBurst Time cannot be less than 0 or greater than 120.\nPlease enter valid Burst Time.\n");
+                if(Faculty[FacultyCount].ArrivalTime + BT>120 || BT<=0 || BT>30) {
+                    if(BT<=0 || BT>30) {
+                    printf("\nBurst Time cannot be less than 0 or greater than 30\n"); }
+                    else {
+                        printf("Invalid Burst time for corresponding Arrival Time\n");
+                    }
+                    printf("Please enter valid Burst Time\n");
                     goto FBTime;
                 }
                 else {
@@ -100,8 +105,13 @@ void InputsForProcess() {
                 SBTime:
                 printf("Enter Burst Time: ");
                 scanf("%d", &BT);
-                if(BT>=120 || BT<=0) {
-                    printf("\nBurst Time cannot be less than 0 or greater than 120!.\nPlease enter valid Burst Time.\n");
+                if(Student[StudentCount].ArrivalTime + BT>120 || BT<=0 || BT>30) {
+                    if(BT<=0 || BT>30) {
+                    printf("\nBurst Time cannot be less than 0 or greater than 30\n"); }
+                    else {
+                        printf("Invalid Burst time for corresponding Arrival Time\n");
+                    }
+                    printf("Please enter valid Burst Time\n");
                     goto SBTime;
                 }
                 else {
@@ -110,7 +120,7 @@ void InputsForProcess() {
                 Student[StudentCount].TotalTime = Student[StudentCount].BurstTime;
                 StudentCount++;
             }
-            else {
+            else {  // In case any error
                 printf("\nInvalid Input. Please try again.\n");
                 goto TryQuery;
             }
@@ -238,10 +248,10 @@ void RoundRobin() {
     MaxCT(); MinAT();
     printf("\n\nSummary of Execution: \n\n");
     printf("Total Time Spent on handling Queries: %d minutes\n", maximumCT-total-1000);
-    // float avgWaitTime = WaitTime * 1.0 / TotalQueries;
+    float avgWaitTime = WaitTime * 1.0 / TotalQueries;
     float avgTATime = TATime * 1.0 / TotalQueries;
-    // printf("\n\nAverage Waiting Time : %.2f", avgWaitTime);
-    printf("Average TurnAround Time : %.2f minutes", avgTATime);
+    printf("Average TurnAround Time : %.2f minutes\n", avgTATime);
+    printf("Average Waiting Time : %.2f minutes", avgWaitTime);
     printf("\n\nProgram Execution Completed!\n\n");
 }
 
@@ -254,7 +264,15 @@ void displayRawData() {
 }
 
 void main() {
-    printf("\nWelcome\n\n");
+    printf("\nWelcome to the OS Project made by Dhiraj Kelhe.\n\n"
+        "Please follow these instructions:\n"
+        "1. Enter number of queries between 0 & 120\n"
+        "2. Make sure to keep value of TimeQuantum minimum\n"
+        "3. Enter Query Arrival Time in the format of HHMM\n"
+        "    Example: 10:25 should be entered as 1025\n"
+        "4. Next Query's arrival time must be less than previous Query's (Arrival Time + Burst Time)\n"
+        "5. Queries must be entered in sequential order of Arrival Time\n"
+        "6. Burst Time must be entered such that [Arrival Time < (Arrival Time + Burst Time) <= 120] & (0 < BT <= 30)\n");
     InputsForProcess();
     MergeQueries();
     // displayRawData();    // For testing purpose

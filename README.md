@@ -1,5 +1,5 @@
 # OS Project
-Problem Statement: 
+Problem Statement:
 
     " Sudesh Sharma is a Linux expert who wants to have an online system where he can
     handle student queries. Since there can be multiple requests at any time he wishes to dedicate
@@ -9,3 +9,14 @@ Problem Statement:
     session should include the total time he spent on handling queries and average query time. "
 
 The given problem is scheduling problem. The problem can be solved by Round Robin algorithm.
+
+Follow these instructions while executing the program:
+
+    1. Enter number of queries between 0 & 120
+    2. Make sure to keep value of TimeQuantum minimum
+    3. Enter Query Arrival Time in the format of HHMM
+        Example: 10:25 should be entered as 1025
+    4. Next Query's arrival time must be less than previous Query's (ArrivalTime + Burst Time)
+    5. Queries must be entered in sequential order of Arrival Time
+    6. Burst Time must be entered such that [Arrival Time < (Arrival Time + Burst Time) <= 120] & (0 < BT <= 30)
+    
