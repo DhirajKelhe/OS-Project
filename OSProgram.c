@@ -244,7 +244,9 @@ void RoundRobin() {
             i = 0;
         }
     }
+}
 
+void PrintResult() {
     MaxCT(); MinAT();
     printf("\n\nSummary of Execution: \n\n");
     printf("Total Time Spent on handling Queries: %d minutes\n", maximumCT-total-1000);
@@ -258,7 +260,7 @@ void RoundRobin() {
 void displayRawData() {
     printf("\nQueryID\tAT\tBT\tTT\n\n");
     for(int i=0; i<MixCount; i++) {
-        printf("%s\t%d\t%d\t%d\t%d\n",Mix[i].QueryID,Mix[i].ArrivalTime,Mix[i].BurstTime,Mix[i].TotalTime);
+        printf("%s\t%d\t%d\t%d\n",Mix[i].QueryID,Mix[i].ArrivalTime,Mix[i].BurstTime,Mix[i].TotalTime);
     }
     printf("\n%d",total);
 }
@@ -272,9 +274,11 @@ void main() {
         "    Example: 10:25 should be entered as 1025\n"
         "4. Next Query's arrival time must be less than previous Query's (Arrival Time + Burst Time)\n"
         "5. Queries must be entered in sequential order of Arrival Time\n"
-        "6. Burst Time must be entered such that [Arrival Time < (Arrival Time + Burst Time) <= 120] & (0 < BT <= 30)\n");
+        "6. Burst Time must be entered such that [Arrival Time < (Arrival Time + Burst Time) <= 120] & (0 < BurstTime <= 30)\n");
     InputsForProcess();
     MergeQueries();
+    MinAT();
     // displayRawData();    // For testing purpose
     RoundRobin();
+    PrintResult();
 }
