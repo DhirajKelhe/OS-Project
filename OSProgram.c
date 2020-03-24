@@ -2,14 +2,14 @@
  Sudesh Sharma is a Linux expert who wants to have an online system where he can handle student queries. 
  Since there can be multiple requests at any time,
  he wishes to dedicate a fixed amount of time (i.e. Time Quantum) to every request so that everyone gets a fair share of his time. //i.e. Round Robin algo
- He will log into the system from 10am to 12am only. 
+ He will log into the system from 10am to 12am only. (i.e. 10:00 AM to 11:59 AM (both including))
  He wants to have separate requests queues for students and faculty. Implement a strategy for the same. 
- The summary at the end of the session should include the total time he spent on handling queries and average query time. 
+ The summary at the end of the session should include the total time he spent on handling queries and average query time (i.e. Avg TurnAroundTime).
  */
 #include<stdio.h>
  /* Since a process/query can have multiple attributes like: 
- ProcessID, ArrivalTime, BurstTime, WaitingTime, TurnAroundTime and CompletionTime,
- we need to define structure for that and have to create variables/objects of structure*/
+ QueryID, ArrivalTime, BurstTime, WaitingTime, TurnAroundTime and CompletionTime,
+ we need to define "structure" (in C language) for that and have to create variables/objects of structure */
 struct Query {
     char QueryID[3];
     int ArrivalTime;
@@ -18,10 +18,11 @@ struct Query {
     int TotalTime;
 }Faculty[120], Student[120], Mix[120];
 
-// Initializing required variables
+// Initializing required variables (globally):
 int TimeQuantum=0, FacultyCount=0, StudentCount=0, MixCount=0, TotalQueries=0, Burst=120;
-int TQ=0, WaitTime=0, TATime=0, counter=0, i, total=0, CTarr[120], maximumCT=0;
+int TQ=0, WaitTime=0, TATime=0, counter=0, total, CTarr[120], maximumCT=0;
 
+// Function to take Required inputs for a query:
 void InputsForProcess() {
     int QueryType, AT=1000, BT=0;
     ValidQuery:
@@ -33,7 +34,7 @@ void InputsForProcess() {
         goto ValidQuery;
     }
     else {
-        TQ = TotalQueries;
+        TQ = TotalQueries;  // for RoundRobin() function
         printf("\nEnter Time Quantum for each query: ");
         scanf("%d", &TimeQuantum);
         // Taking inputs for all the queries
@@ -54,7 +55,7 @@ void InputsForProcess() {
                     printf("\nEnter Correct Time!\n");
                     goto FTime;
                 }
-                else {
+                else {  // Simplifying ArrivalTime for further calculations
                     if (AT>=1000 && AT<1100) {
                         Faculty[FacultyCount].ArrivalTime = AT-1000;
                     }
@@ -71,11 +72,9 @@ void InputsForProcess() {
                     else {
                         if (Burst-BT<=0) {
                             int choice;
-                            printf("\nSudesh Sharma won't have enough time to handle this query\nWant to change BurstTime? (1 : Yes; Else : No) ");
+                            printf("\nSudesh Sharma will not have enough time to handle this Query because of high BurstTime.\nWant to change BurstTime? (1 : Yes; Else : No) ");
                             scanf("%d", &choice);
-                            if(choice==1) {
-                                goto FBTime;
-                            }
+                            if(choice==1) { goto FBTime; }
                             else {
                                 printf("\nOK. This query's all data will be lost\n");
                                 goto TryQuery;
@@ -125,7 +124,7 @@ void InputsForProcess() {
                     else {
                         if (Burst-BT<=0) {
                             int choice;
-                            printf("\nSudesh Sharma won't have enough time to handle this query\nWant to change BurstTime? (1 : Yes; Else : No) ");
+                            printf("\nSudesh Sharma won't have enough time to handle this Query because of high BurstTime.\nWant to change BurstTime? (1 : Yes; Else : No) ");
                             scanf("%d", &choice);
                             if(choice==1) {
                                 goto FBTime;
@@ -140,7 +139,7 @@ void InputsForProcess() {
                         }
                     }
                     printf("Please enter valid Burst Time\n");
-                    goto FBTime;
+                    goto SBTime;
                 }
                 else {
                     Student[StudentCount].BurstTime = BT;
@@ -149,15 +148,17 @@ void InputsForProcess() {
                 Student[StudentCount].TotalTime = Student[StudentCount].BurstTime;
                 StudentCount++;
             }
-            else {  // In case any other input
+            else {  // In case any other wrong input
                 printf("\nInvalid Input. Please try again.\n");
                 goto TryQuery;
             }
         }
     }
 }
+// Sorting Faculties and Students Queries according to Arrival Time using QuickSort algorithm:
 void FacultySort() {
-    int partition(int low, int high) {
+    int partition(int low, int high) 
+    {
         int pivot = Faculty[high].ArrivalTime;
         int i = (low - 1);
         for (int j=low; j<=high; j++) {
@@ -210,75 +211,67 @@ void StudentSort() {
     quickSort(0, StudentCount-1);
     // printf("%d %d %d", Student[0].ArrivalTime,Student[1].ArrivalTime,Student[2].ArrivalTime);
 }
-// function to merge faculty and student's queries into one variable.
+// function to merge Faculty and Student's queries into one variable of structure (Mix):
 void MergeQueries() {
-    int iSC=0, iFC=0;
-    if( FacultyCount !=0  && StudentCount !=0){	// got entries for both
-		while(iSC < StudentCount && iFC < FacultyCount ){
-			if(Faculty[iFC].ArrivalTime == Student [iSC].ArrivalTime){	// both entries arrives at same time
+    int iSC=0, iFC=0;   // Counting variables to keep count of added queries into Mix variable
+    if(FacultyCount !=0  && StudentCount !=0) {	// got entries for both
+		while(iSC < StudentCount && iFC < FacultyCount) {
+			if(Faculty[iFC].ArrivalTime == Student[iSC].ArrivalTime) {	// both entries arrives at same time
 				Mix[MixCount] = Faculty[iFC];	// priority to faculty
 				MixCount++;
 				iFC++;
-				Mix[MixCount] = Student [iSC];	// and then student
+				Mix[MixCount] = Student[iSC];	// and then student
 				MixCount++;
 				iSC++;
 			}
-			else if(Faculty[iFC].ArrivalTime < Student [iSC].ArrivalTime) {	// faculty entry came before
+			else if(Faculty[iFC].ArrivalTime < Student[iSC].ArrivalTime) {	// faculty entry came before
 				Mix[MixCount] = Faculty[iFC];
 				MixCount++;
 				iFC++;
 			}
-			else if(Faculty[iFC].ArrivalTime > Student [iSC].ArrivalTime){	// student entry came first
-				Mix[MixCount] = Student [iSC];
+			else if(Faculty[iFC].ArrivalTime > Student[iSC].ArrivalTime) {	// student entry came first
+				Mix[MixCount] = Student[iSC];
 				MixCount++;
 				iSC++;
 			}
-			else;
 		}
-		if(MixCount != (FacultyCount + StudentCount )){	// in case there's any error
-			if(FacultyCount != iFC){
-				while(iFC!=FacultyCount ){	
+		if(MixCount != (FacultyCount + StudentCount)) {	// in case there's any unadded query (which most probably will occur)
+			if(FacultyCount != iFC) {   // Adding remained Faculty Queries
+				while(iFC != FacultyCount) {	
 					Mix[MixCount] = Faculty[iFC];
 					MixCount++;
 					iFC++;
 				}
 			}
-			else if(StudentCount !=iSC){
-				while(iSC!=StudentCount ){
-					Mix[MixCount]= Student [iSC];
+			else if(StudentCount != iSC) {  // Adding remained Student Queries
+				while(iSC != StudentCount) {    
+					Mix[MixCount] = Student[iSC];
 					MixCount++;
 					iSC++;
 				}
 			}
 		}
 	}
-	else if(FacultyCount == 0){	//got entries for student
-		while(iSC!=StudentCount ){
-			Mix[MixCount]= Student [iSC];
+	else if(FacultyCount == 0) {	//got entries for student only
+		while(iSC != StudentCount) {
+			Mix[MixCount] = Student[iSC];
 			MixCount++;
 			iSC++;
 		}
 	}
-	else if(StudentCount == 0){	//got entries for faculty
-		while(iFC!=FacultyCount ){
-			Mix[MixCount]= Faculty[iFC];
+	else if(StudentCount == 0) {	//got entries for faculty only
+		while(iFC != FacultyCount) {
+			Mix[MixCount] = Faculty[iFC];
 			MixCount++;
 			iFC++;
 		}
 	}
 }
-void MaxCT() {
-    maximumCT=CTarr[0];
-    for(i=1;i<MixCount;i++) {
-        if(maximumCT<CTarr[i]) {
-            maximumCT = CTarr[i];
-        }
-    }
-}
+// Function to apply RoundRobin operation on Mix variable's queries:
 void RoundRobin() {
     total = Mix[0].ArrivalTime;
     printf("\nQuery ID\tArrivalTime\tBurstTime\tWaitingTime\tTurnAroundTime\tCompletionTime\n");
-    for(i = 0; TQ != 0;) {
+    for(int i = 0; TQ != 0;) {
         if(Mix[i].TotalTime <= TimeQuantum && Mix[i].TotalTime > 0) {   // (First if) Process will complete without any preemption
             total = total + Mix[i].TotalTime;
             Mix[i].TotalTime = 0;
@@ -317,6 +310,16 @@ void RoundRobin() {
         }
     }
 }
+// Function to find maximum Completion Time:
+void MaxCT() {
+    maximumCT = CTarr[0];
+    for(int i=1; i<MixCount; i++) {
+        if(maximumCT < CTarr[i]) {
+            maximumCT = CTarr[i];
+        }
+    }
+}
+// Function to print Final Result of program:
 void PrintResult() {
     MaxCT(); total = Mix[0].ArrivalTime;
     printf("\n\nSummary of Execution: \n\n");
@@ -327,15 +330,15 @@ void PrintResult() {
     printf("Average Waiting Time : %.2f minutes", avgWaitTime);
     printf("\n\nProgram Execution Completed!\n\n");
 }
-void displayRawData() {
-    printf("\nQueryID\tAT\tBT\tTT\n\n");
-    for(int i=0; i<MixCount; i++) {
-        printf("%s\t%d\t%d\t%d\n",Mix[i].QueryID,Mix[i].ArrivalTime,Mix[i].BurstTime,Mix[i].TotalTime);
-    }
-    printf("\n%d",total);
-}
-
+// Main function:
 void main() {
+    /* Program execution sequence:
+    1. Taking inputs of queries from user
+    2. Sorting all queries according to ArrivalTime
+    3. Merging all queries (initial priority to Faculty's query)
+    4. Applying RoundRobin algorithm on merged queries
+    5. Print the results 
+    */
     printf("\nWelcome to the OS Project made by Dhiraj Kelhe.\n\n"
         "Please follow these instructions:\n"
         "1. Enter number of queries between 0 & 120\n"
@@ -348,7 +351,6 @@ void main() {
     FacultySort();
     StudentSort();
     MergeQueries();
-    // displayRawData();    // For testing purpose
     RoundRobin();
     PrintResult();
 }
