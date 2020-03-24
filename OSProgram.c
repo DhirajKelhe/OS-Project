@@ -179,7 +179,6 @@ void FacultySort(int low, int high) {
         FacultySort(pi+1, high);
     }
 }
-
 int Spartition(int low, int high) {
     int pivot = Student[high].ArrivalTime;
     int i = (low - 1);
@@ -337,7 +336,7 @@ int main() {
         "2. Make sure to keep value of TimeQuantum minimum for convinience\n"
         "3. Enter Query Arrival Time in the format of HHMM\n"
         "    Example: 10:25 should be entered as 1025\n"
-        "4. Next Query's ArrivalTime must be less than previous Query's CompletionTime (ArrivalTime + BurstTime)\n"
+        "4. Next Query's ArrivalTime must be less than previous Query's CompletionTime (ArrivalTime + BurstTime). (Else program will stuck)\n"
         "5. BurstTime must be entered such that (ArrivalTime + BurstTime) < 120\n");
     InputsForProcess();
     FacultySort(0, FacultyCount-1);
