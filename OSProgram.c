@@ -3,9 +3,8 @@
  Since there can be multiple requests at any time,
  he wishes to dedicate a fixed amount of time (i.e. Time Quantum) to every request so that everyone gets a fair share of his time. //i.e. Round Robin algo
  He will log into the system from 10am to 12am only. 
- He wants to have separate requests queues for students and faculty. 
- Implement a strategy for the same. 
- The summary at the end of the session should include the total time he spent on handling queries and average query time.
+ He wants to have separate requests queues for students and faculty. Implement a strategy for the same. 
+ The summary at the end of the session should include the total time he spent on handling queries and average query time. 
  */
 #include<stdio.h>
  /* Since a process/query can have multiple attributes like: 
@@ -20,7 +19,7 @@ struct Query {
 }Faculty[120], Student[120], Mix[120];
 
 // Initializing required variables
-int TimeQuantum=0, FacultyCount=0, StudentCount=0, MixCount=0, TotalQueries=0;
+int TimeQuantum=0, FacultyCount=0, StudentCount=0, MixCount=0, TotalQueries=0, Burst=120;
 int TQ=0, WaitTime=0, TATime=0, counter=0, i, total=0, CTarr[120], maximumCT=0;
 
 void InputsForProcess() {
@@ -66,11 +65,25 @@ void InputsForProcess() {
                 FBTime:
                 printf("Enter Burst Time: ");
                 scanf("%d", &BT);
-                if(Faculty[FacultyCount].ArrivalTime + BT>120 || BT<=0 || BT>30) {
-                    if(BT<=0 || BT>30) {
-                    printf("\nBurst Time cannot be less than 0 or greater than 30\n"); }
+                if(Burst - BT < 0 || BT <= 0 || Faculty[FacultyCount].ArrivalTime + BT >= 120) {
+                    if(BT<=0) {
+                    printf("\nBurst Time cannot be less than 0\n"); }
                     else {
-                        printf("Invalid Burst time for corresponding Arrival Time\n");
+                        if (Burst-BT<=0) {
+                            int choice;
+                            printf("\nSudesh Sharma won't have enough time to handle this query\nWant to change BurstTime? (1 : Yes; Else : No) ");
+                            scanf("%d", &choice);
+                            if(choice==1) {
+                                goto FBTime;
+                            }
+                            else {
+                                printf("\nOK. This query's all data will be lost\n");
+                                goto TryQuery;
+                            }
+                        }
+                        else {
+                            printf("\nInvalid Burst time for corresponding Arrival Time\n");
+                        }
                     }
                     printf("Please enter valid Burst Time\n");
                     goto FBTime;
@@ -78,6 +91,7 @@ void InputsForProcess() {
                 else {
                     Faculty[FacultyCount].BurstTime = BT;
                 }
+                Burst -= BT;
                 Faculty[FacultyCount].TotalTime = Faculty[FacultyCount].BurstTime;
                 FacultyCount++;
             }
@@ -105,29 +119,97 @@ void InputsForProcess() {
                 SBTime:
                 printf("Enter Burst Time: ");
                 scanf("%d", &BT);
-                if(Student[StudentCount].ArrivalTime + BT>120 || BT<=0 || BT>30) {
-                    if(BT<=0 || BT>30) {
-                    printf("\nBurst Time cannot be less than 0 or greater than 30\n"); }
+                if(Burst - BT < 0 || BT <= 0 || Student[StudentCount].ArrivalTime + BT >= 120) {
+                    if(BT<=0) {
+                    printf("\nBurst Time cannot be less than 0\n"); }
                     else {
-                        printf("Invalid Burst time for corresponding Arrival Time\n");
+                        if (Burst-BT<=0) {
+                            int choice;
+                            printf("\nSudesh Sharma won't have enough time to handle this query\nWant to change BurstTime? (1 : Yes; Else : No) ");
+                            scanf("%d", &choice);
+                            if(choice==1) {
+                                goto FBTime;
+                            }
+                            else {
+                                printf("\nOK. This query's all data will be lost\n");
+                                goto TryQuery;
+                            }
+                        }
+                        else {
+                            printf("\nInvalid Burst time for corresponding Arrival Time\n");
+                        }
                     }
                     printf("Please enter valid Burst Time\n");
-                    goto SBTime;
+                    goto FBTime;
                 }
                 else {
                     Student[StudentCount].BurstTime = BT;
                 }
+                Burst -= BT;
                 Student[StudentCount].TotalTime = Student[StudentCount].BurstTime;
                 StudentCount++;
             }
-            else {  // In case any error
+            else {  // In case any other input
                 printf("\nInvalid Input. Please try again.\n");
                 goto TryQuery;
             }
         }
     }
 }
-
+void FacultySort() {
+    int partition(int low, int high) {
+        int pivot = Faculty[high].ArrivalTime;
+        int i = (low - 1);
+        for (int j=low; j<=high; j++) {
+            if (Faculty[j].ArrivalTime < pivot) {
+                i++;
+                Faculty[FacultyCount] = Faculty[i];
+                Faculty[i] = Faculty[j];
+                Faculty[j] = Faculty[FacultyCount];
+            }
+        }
+        Faculty[FacultyCount] = Faculty[i+1];
+        Faculty[i+1] = Faculty[high];
+        Faculty[high] = Faculty[FacultyCount];
+        return(i+1);
+    }
+    void quickSort(int low, int high) {
+        if(low < high) {
+            int pi = partition(low, high);
+            quickSort(low, pi-1);
+            quickSort(pi+1, high);
+        }
+    }
+    quickSort(0, FacultyCount-1);
+    // printf("%d %d %d", Faculty[0].ArrivalTime,Faculty[1].ArrivalTime,Faculty[2].ArrivalTime);
+}
+void StudentSort() {
+    int partition(int low, int high) {
+        int pivot = Student[high].ArrivalTime;
+        int i = (low - 1);
+        for (int j=low; j<=high; j++) {
+            if (Student[j].ArrivalTime < pivot) {
+                i++;
+                Student[StudentCount] = Student[i];
+                Student[i] = Student[j];
+                Student[j] = Student[StudentCount];
+            }
+        }
+        Student[StudentCount] = Student[i+1];
+        Student[i+1] = Student[high];
+        Student[high] = Student[StudentCount];
+        return(i+1);
+    }
+    void quickSort(int low, int high) {
+        if(low < high) {
+            int pi = partition(low, high);
+            quickSort(low, pi-1);
+            quickSort(pi+1, high);
+        }
+    }
+    quickSort(0, StudentCount-1);
+    // printf("%d %d %d", Student[0].ArrivalTime,Student[1].ArrivalTime,Student[2].ArrivalTime);
+}
 // function to merge faculty and student's queries into one variable.
 void MergeQueries() {
     int iSC=0, iFC=0;
@@ -142,12 +224,12 @@ void MergeQueries() {
 				iSC++;
 			}
 			else if(Faculty[iFC].ArrivalTime < Student [iSC].ArrivalTime) {	// faculty entry came before
-				Mix[MixCount]= Faculty[iFC];
+				Mix[MixCount] = Faculty[iFC];
 				MixCount++;
 				iFC++;
 			}
 			else if(Faculty[iFC].ArrivalTime > Student [iSC].ArrivalTime){	// student entry came first
-				Mix[MixCount]= Student [iSC];
+				Mix[MixCount] = Student [iSC];
 				MixCount++;
 				iSC++;
 			}
@@ -185,16 +267,6 @@ void MergeQueries() {
 		}
 	}
 }
-
-void MinAT() {
-    total = Mix[0].ArrivalTime;
-    for(int i=1;i<MixCount;i++) {
-        if(total>Mix[i].ArrivalTime) {
-            total = Mix[i].ArrivalTime;
-        }
-    }
-}
-
 void MaxCT() {
     maximumCT=CTarr[0];
     for(i=1;i<MixCount;i++) {
@@ -203,8 +275,8 @@ void MaxCT() {
         }
     }
 }
-
 void RoundRobin() {
+    total = Mix[0].ArrivalTime;
     printf("\nQuery ID\tArrivalTime\tBurstTime\tWaitingTime\tTurnAroundTime\tCompletionTime\n");
     for(i = 0; TQ != 0;) {
         if(Mix[i].TotalTime <= TimeQuantum && Mix[i].TotalTime > 0) {   // (First if) Process will complete without any preemption
@@ -245,9 +317,8 @@ void RoundRobin() {
         }
     }
 }
-
 void PrintResult() {
-    MaxCT(); MinAT();
+    MaxCT(); total = Mix[0].ArrivalTime;
     printf("\n\nSummary of Execution: \n\n");
     printf("Total Time Spent on handling Queries: %d minutes\n", maximumCT-total-1000);
     float avgWaitTime = WaitTime * 1.0 / TotalQueries;
@@ -256,7 +327,6 @@ void PrintResult() {
     printf("Average Waiting Time : %.2f minutes", avgWaitTime);
     printf("\n\nProgram Execution Completed!\n\n");
 }
-
 void displayRawData() {
     printf("\nQueryID\tAT\tBT\tTT\n\n");
     for(int i=0; i<MixCount; i++) {
@@ -269,15 +339,15 @@ void main() {
     printf("\nWelcome to the OS Project made by Dhiraj Kelhe.\n\n"
         "Please follow these instructions:\n"
         "1. Enter number of queries between 0 & 120\n"
-        "2. Make sure to keep value of TimeQuantum minimum\n"
+        "2. Make sure to keep value of TimeQuantum minimum for convinience\n"
         "3. Enter Query Arrival Time in the format of HHMM\n"
         "    Example: 10:25 should be entered as 1025\n"
-        "4. Next Query's arrival time must be less than previous Query's (Arrival Time + Burst Time)\n"
-        "5. Queries must be entered in sequential order of Arrival Time\n"
-        "6. Burst Time must be entered such that [Arrival Time < (Arrival Time + Burst Time) <= 120] & (0 < BurstTime <= 30)\n");
+        "4. Next Query's ArrivalTime must be less than previous Query's CompletionTime (ArrivalTime + BurstTime)\n"
+        "5. BurstTime must be entered such that (ArrivalTime + BurstTime) < 120\n");
     InputsForProcess();
+    FacultySort();
+    StudentSort();
     MergeQueries();
-    MinAT();
     // displayRawData();    // For testing purpose
     RoundRobin();
     PrintResult();
