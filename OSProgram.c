@@ -46,7 +46,7 @@ void InputsForProcess() {
             // Query Processing For Faculty
             if(QueryType == 1) {
                 printf("\nEnter Query ID: ");
-                scanf("%s", &Faculty[FacultyCount].QueryID);
+                scanf("%s", &Faculty[FacultyCount].QueryID[0]);
                 FTime:
                 printf("Enter Query Arrival Time: ");
                 scanf("%d", &AT);
@@ -98,7 +98,7 @@ void InputsForProcess() {
             // Query Processing For Student
             else if(QueryType == 2) {
                 printf("\nEnter Query ID: ");
-                scanf("%s", &Student[StudentCount].QueryID);
+                scanf("%s", &Student[StudentCount].QueryID[0]);
                 STime:
                 printf("Enter Query Arrival Time: ");
                 scanf("%d", &AT);
@@ -156,60 +156,52 @@ void InputsForProcess() {
     }
 }
 // Sorting Faculties and Students Queries according to Arrival Time using QuickSort algorithm:
-void FacultySort() {
-    int partition(int low, int high) 
-    {
-        int pivot = Faculty[high].ArrivalTime;
-        int i = (low - 1);
-        for (int j=low; j<=high; j++) {
-            if (Faculty[j].ArrivalTime < pivot) {
-                i++;
-                Faculty[FacultyCount] = Faculty[i];
-                Faculty[i] = Faculty[j];
-                Faculty[j] = Faculty[FacultyCount];
-            }
-        }
-        Faculty[FacultyCount] = Faculty[i+1];
-        Faculty[i+1] = Faculty[high];
-        Faculty[high] = Faculty[FacultyCount];
-        return(i+1);
-    }
-    void quickSort(int low, int high) {
-        if(low < high) {
-            int pi = partition(low, high);
-            quickSort(low, pi-1);
-            quickSort(pi+1, high);
+int Fpartition(int low, int high) {
+    int pivot = Faculty[high].ArrivalTime;
+    int i = (low - 1);
+    for (int j=low; j<=high; j++) {
+        if (Faculty[j].ArrivalTime < pivot) {
+            i++;
+            Faculty[FacultyCount] = Faculty[i];
+            Faculty[i] = Faculty[j];
+            Faculty[j] = Faculty[FacultyCount];
         }
     }
-    quickSort(0, FacultyCount-1);
-    // printf("%d %d %d", Faculty[0].ArrivalTime,Faculty[1].ArrivalTime,Faculty[2].ArrivalTime);
+    Faculty[FacultyCount] = Faculty[i+1];
+    Faculty[i+1] = Faculty[high];
+    Faculty[high] = Faculty[FacultyCount];
+    return(i+1);
 }
-void StudentSort() {
-    int partition(int low, int high) {
-        int pivot = Student[high].ArrivalTime;
-        int i = (low - 1);
-        for (int j=low; j<=high; j++) {
-            if (Student[j].ArrivalTime < pivot) {
-                i++;
-                Student[StudentCount] = Student[i];
-                Student[i] = Student[j];
-                Student[j] = Student[StudentCount];
-            }
-        }
-        Student[StudentCount] = Student[i+1];
-        Student[i+1] = Student[high];
-        Student[high] = Student[StudentCount];
-        return(i+1);
+void FacultySort(int low, int high) {
+    if(low < high) {
+        int pi = Fpartition(low, high);
+        FacultySort(low, pi-1);
+        FacultySort(pi+1, high);
     }
-    void quickSort(int low, int high) {
-        if(low < high) {
-            int pi = partition(low, high);
-            quickSort(low, pi-1);
-            quickSort(pi+1, high);
+}
+
+int Spartition(int low, int high) {
+    int pivot = Student[high].ArrivalTime;
+    int i = (low - 1);
+    for (int j=low; j<=high; j++) {
+        if (Student[j].ArrivalTime < pivot) {
+            i++;
+            Student[StudentCount] = Student[i];
+            Student[i] = Student[j];
+            Student[j] = Student[StudentCount];
         }
     }
-    quickSort(0, StudentCount-1);
-    // printf("%d %d %d", Student[0].ArrivalTime,Student[1].ArrivalTime,Student[2].ArrivalTime);
+    Student[StudentCount] = Student[i+1];
+    Student[i+1] = Student[high];
+    Student[high] = Student[StudentCount];
+    return(i+1);
+}
+void StudentSort(int low, int high) {
+    if(low < high) {
+        int pi = Spartition(low, high);
+        StudentSort(low, pi-1);
+        StudentSort(pi+1, high);
+    }
 }
 // function to merge Faculty and Student's queries into one variable of structure (Mix):
 void MergeQueries() {
@@ -331,7 +323,7 @@ void PrintResult() {
     printf("\n\nProgram Execution Completed!\n\n");
 }
 // Main function:
-void main() {
+int main() {
     /* Program execution sequence:
     1. Taking inputs of queries from user
     2. Sorting all queries according to ArrivalTime
@@ -348,8 +340,8 @@ void main() {
         "4. Next Query's ArrivalTime must be less than previous Query's CompletionTime (ArrivalTime + BurstTime)\n"
         "5. BurstTime must be entered such that (ArrivalTime + BurstTime) < 120\n");
     InputsForProcess();
-    FacultySort();
-    StudentSort();
+    FacultySort(0, FacultyCount-1);
+    StudentSort(0, StudentCount-1);
     MergeQueries();
     RoundRobin();
     PrintResult();
