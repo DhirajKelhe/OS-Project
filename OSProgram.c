@@ -23,6 +23,7 @@ int TimeQuantum=0, FacultyCount=0, StudentCount=0, MixCount=0, TotalQueries=0, B
 int TQ=0, WaitTime=0, TATime=0, counter=0, total, CTarr[120], maximumCT=0;
 
 // Function to take Required inputs for a query:
+// Time complexity = O(TotalQueries), TotalQueries is a limited int.
 void InputsForProcess() {
     int QueryType, AT=1000, BT=0;
     ValidQuery:
@@ -38,7 +39,7 @@ void InputsForProcess() {
         printf("\nEnter Time Quantum for each query: ");
         scanf("%d", &TimeQuantum);
         // Taking inputs for all the queries
-        for(int i=0; i<TotalQueries; i++) {
+        for(int i=0; i<TotalQueries; i++) { //Time complexity = O(TotalQueries)
             TryQuery:
             printf("\nType of Query (1 for Faculty, 2 for Student): ");
             scanf("%d", &QueryType);
@@ -158,6 +159,7 @@ void InputsForProcess() {
     }
 }
 // Sorting Faculties and Students Queries according to Arrival Time using QuickSort algorithm:
+// Time complexity of Faculty QuickSort = O(nlog(n)), n=no. of Faculty queries to sort (limited)
 int Fpartition(int low, int high) {
     int pivot = Faculty[high].ArrivalTime;
     int i = (low - 1);
@@ -181,6 +183,7 @@ void FacultySort(int low, int high) {
         FacultySort(pi+1, high);
     }
 }
+// Time complexity of Student QuickSort = O(mlog(m)), m=no. of Student queries to sort (limited)
 int Spartition(int low, int high) {
     int pivot = Student[high].ArrivalTime;
     int i = (low - 1);
@@ -205,6 +208,7 @@ void StudentSort(int low, int high) {
     }
 }
 // function to merge Faculty and Student's queries into one variable of structure (Mix):
+// Time complexity = O(FacultyCount + StudentCount)
 void MergeQueries() {
     int iSC=0, iFC=0;   // Counting variables to keep count of added queries into Mix variable
     if(FacultyCount !=0  && StudentCount !=0) {	// got entries for both
@@ -261,6 +265,7 @@ void MergeQueries() {
 	}
 }
 // Function to apply RoundRobin operation on Mix variable's queries:
+// Time complexity of Round Robin = O(1)
 void RoundRobin() {
     total = Mix[0].ArrivalTime;
     printf("\n==> Time is in minutes for all calculations\n");
@@ -305,6 +310,7 @@ void RoundRobin() {
     }
 }
 // Function to find maximum Completion Time:
+// Time complexity = O(1) bcoz MixCount is limited int value
 void MaxCT() {
     maximumCT = CTarr[0];
     for(int i=1; i<MixCount; i++) {
@@ -314,6 +320,7 @@ void MaxCT() {
     }
 }
 // Function to print Final Result of program:
+// Time complexity = O(1)
 void PrintResult() {
     MaxCT(); total = Mix[0].ArrivalTime;
     printf("\n\nSummary of Execution: \n\n");
@@ -325,6 +332,7 @@ void PrintResult() {
     printf("\n\nProgram Execution Completed!\n\n");
 }
 // Main function:
+// Overall Time Complexity = O(TotalQueries + n + m + nlog(n) + mlog(m))
 int main() {
     /* Program execution sequence:
     1. Taking inputs of queries from user
@@ -340,10 +348,10 @@ int main() {
         "    Example: 10:25 should be entered as 1025\n"
         "4. Next Query's ArrivalTime must be less than previous Query's CompletionTime (ArrivalTime + BurstTime)\n"
         "5. BurstTime must be entered such that (ArrivalTime + BurstTime) < 120\n");
-    InputsForProcess();
-    FacultySort(0, FacultyCount-1);
-    StudentSort(0, StudentCount-1);
-    MergeQueries();
-    RoundRobin();
-    PrintResult();
+    InputsForProcess(); //Time Complexity = O(TotalQueries)
+    FacultySort(0, FacultyCount-1); // Time Complexity = O(nlog(n)); n=FacultyCount
+    StudentSort(0, StudentCount-1); // Time Complexity = O(mlog(m)); m=StudentCount
+    MergeQueries(); // Time Complexity = O(FacultyCount+StudentCount)
+    RoundRobin();   // Time Complexity = O(1)
+    PrintResult();  // Time Complexity = O(1)
 }
