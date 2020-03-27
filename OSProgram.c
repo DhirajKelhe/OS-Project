@@ -332,7 +332,7 @@ void PrintResult() {
     printf("\n\nProgram Execution Completed!\n\n");
 }
 // Main function:
-// Overall Time Complexity = O(TotalQueries + n + m + nlog(n) + mlog(m))
+// Overall Time Complexity = 2*O(n + m) + O(nlog(n)) + O(mlog(m))  + 2*O(1) = O(nlog(n)) + O(mlog(m))  
 int main() {
     /* Program execution sequence:
     1. Taking inputs of queries from user
@@ -351,7 +351,7 @@ int main() {
     InputsForProcess(); //Time Complexity = O(TotalQueries)
     FacultySort(0, FacultyCount-1); // Time Complexity = O(nlog(n)); n=FacultyCount
     StudentSort(0, StudentCount-1); // Time Complexity = O(mlog(m)); m=StudentCount
-    MergeQueries(); // Time Complexity = O(FacultyCount+StudentCount)
+    MergeQueries(); // Time Complexity = O(TotalQueries)
     RoundRobin();   // Time Complexity = O(1)
     PrintResult();  // Time Complexity = O(1)
 }
