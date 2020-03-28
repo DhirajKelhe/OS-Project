@@ -31,7 +31,7 @@ void InputsForProcess() {
     scanf("%d", &TotalQueries);
     // Check whether entered query number is <0 or >120
     if(TotalQueries<=0 || TotalQueries>120) {
-        printf("\nQueries cannot be less than 0 or more than 120!\n");
+        printf("\nQueries cannot be <0 or >120!\n");
         goto ValidQuery;
     }
     else {
